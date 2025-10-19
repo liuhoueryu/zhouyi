@@ -1,0 +1,60 @@
+{% extends "zhouyi_app/base.html" %}
+
+{% block title %}首页 - 周易占卜系统{% endblock %}
+
+{% block content %}
+<div style="text-align: center;">
+    <h2>开始占卜</h2>
+    <p class="info-box">请静心凝神，专注于您要占卜的事项，然后填写下方表单。</p>
+
+    <!-- 修改这里：使用带动画的占卜页面 -->
+    <form method="post" action="/calculate-animation/">
+        {% csrf_token %}
+        <div style="margin: 30px 0;">
+            <label for="thing" style="display: block; margin-bottom: 10px; font-size: 18px; font-weight: bold;">
+                请输入您要占卜的事情：
+            </label>
+            <textarea id="thing" name="thing" rows="4" style="width: 100%; max-width: 500px; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 16px; font-family: inherit;"
+                      placeholder="例如：事业发展、感情婚姻、学业考试、健康疾病等..." required></textarea>
+        </div>
+
+        {% if error %}
+        <div class="error">{{ error }}</div>
+        {% endif %}
+
+        <button type="submit" class="btn" style="font-size: 18px; padding: 15px 40px;">
+            🎋 开始占卜 🎋
+        </button>
+    </form>
+
+    <!-- 保留原有内容 -->
+    <div style="margin-top: 40px;">
+        <h3>占卜须知</h3>
+        <div class="warning-box">
+            <p><strong>注意事项：</strong></p>
+            <ul style="text-align: left; display: inline-block;">
+                <li>一事一占，不诚不占</li>
+                <li>无疑不占，不义不占</li>
+                <li>占卜前请静心默想所求之事</li>
+                <li>结果仅供参考，命运掌握在自己手中</li>
+            </ul>
+        </div>
+    </div>
+
+    {% if recent_records %}
+    <div style="margin-top: 40px;">
+        <h3>最近占卜记录</h3>
+        <ul class="history-list">
+            {% for record in recent_records %}
+            <li class="history-item">
+                <a href="/detail/{{  record.id }}">
+                    <strong>{{ record.thing }}</strong><br>
+                    <small>卦象：{{ record.hexagram_name }} | 时间：{{ record.created_time|date:"m-d H:i" }}</small>
+                </a>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

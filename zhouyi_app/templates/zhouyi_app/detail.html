@@ -1,0 +1,41 @@
+{% extends "zhouyi_app/base.html" %}
+
+{% block title %}占卜详情 - 周易占卜系统{% endblock %}
+
+{% block content %}
+<div style="text-align: center;">
+    <h2>占卜详情</h2>
+    
+    <div class="info-box">
+        <p><strong>占卜事项：</strong>{{ record.thing }}</p>
+        <p><strong>卦象名称：</strong>{{ record.hexagram_name }}</p>
+        <p><strong>占卜时间：</strong>{{ record.created_time|date:"Y年m月d日 H时i分" }}</p>
+        {% if record.ip_address %}
+        <p><small>IP地址：{{ record.ip_address }}</small></p>
+        {% endif %}
+    </div>
+    
+    <div class="hexagram">
+        <h3>卦象显示</h3>
+        {% for line in hexagram_lines %}
+            <div>{{ line }}</div>
+        {% endfor %}
+    </div>
+    
+    {% if changing_lines %}
+    <div class="warning-box">
+        <p><strong>※ 变爻位置：</strong>
+            {% for line in changing_lines %}
+                第{{ line|add:1 }}爻{% if not forloop.last %}、{% endif %}
+            {% endfor %}
+        </p>
+    </div>
+    {% endif %}
+    
+    <div style="margin: 30px 0;">
+        <a href="{{ record.result_url }}" target="_blank" class="btn">查看详细卦解</a>
+        <a href="/history/" class="btn btn-secondary">返回历史</a>
+        <a href="/index/" class="btn btn-secondary">返回首页</a>
+    </div>
+</div>
+{% endblock %}

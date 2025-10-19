@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>周易占卜系统</title>
+    <style>
+        body { font-family: 'Microsoft YaHei', sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .container { background: #f9f9f9; padding: 20px; border-radius: 10px; }
+        .hexagram { text-align: center; font-size: 24px; line-height: 2; margin: 20px 0; }
+        .btn { background: #8B4513; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; }
+        .btn:hover { background: #A0522D; }
+        .history-list { list-style: none; padding: 0; }
+        .history-item { border-bottom: 1px solid #ddd; padding: 10px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 style="text-align: center;">🎋 周易占卜系统 🎋</h1>
+        {% block content %}{% endblock %}
+    </div>
+</body>
+</html>

@@ -1,0 +1,394 @@
+{% extends "zhouyi_app/base.html" %}
+
+{% block title %}占卜进行中 - 周易占卜系统{% endblock %}
+
+{% block extra_css %}
+<style>
+    .loading-container {
+        text-align: center;
+        padding: 40px 20px;
+    }
+
+    .animation-area {
+        height: 200px;
+        position: relative;
+        margin: 30px 0;
+    }
+
+    .incense-stick {
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 8px;
+        height: 120px;
+        background: linear-gradient(to top, #8B4513 0%, #D2691E 100%);
+        border-radius: 4px;
+    }
+
+    .smoke {
+        position: absolute;
+        top: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 4px;
+        height: 0;
+        background: rgba(255, 255, 255, 0.8);
+        border-radius: 50%;
+        animation: smokeRise 3s infinite;
+    }
+
+    .coin {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(45deg, #FFD700, #D4AF37);
+        border-radius: 50%;
+        display: inline-block;
+        margin: 10px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        position: relative;
+        animation: coinFlip 2s infinite;
+    }
+
+    .coin:nth-child(2) {
+        animation-delay: 0.3s;
+    }
+
+    .coin:nth-child(3) {
+        animation-delay: 0.6s;
+    }
+
+    .hexagram-building {
+        font-size: 36px;
+        line-height: 1.8;
+        margin: 20px 0;
+        min-height: 220px;
+    }
+
+    .hexagram-line {
+        opacity: 0;
+        animation: fadeIn 0.5s forwards;
+    }
+
+    .progress-container {
+        width: 100%;
+        background: #f0f0f0;
+        border-radius: 10px;
+        margin: 20px 0;
+        height: 20px;
+        overflow: hidden;
+    }
+
+    .progress-bar {
+        height: 100%;
+        background: linear-gradient(90deg, #8B4513, #D2691E);
+        border-radius: 10px;
+        width: 0%;
+        transition: width 0.5s ease;
+    }
+
+    .step-info {
+        margin: 20px 0;
+        font-size: 18px;
+        color: #8B4513;
+        min-height: 60px;
+    }
+
+    .phase-title {
+        font-size: 24px;
+        color: #8B4513;
+        margin: 30px 0 20px;
+        border-bottom: 2px solid #8B4513;
+        padding-bottom: 10px;
+        display: inline-block;
+    }
+
+    @keyframes smokeRise {
+        0% {
+            height: 0;
+            opacity: 0;
+            transform: translateX(-50%) translateY(0);
+        }
+        50% {
+            height: 80px;
+            opacity: 0.7;
+            transform: translateX(-50%) translateY(-40px);
+        }
+        100% {
+            height: 120px;
+            opacity: 0;
+            transform: translateX(-50%) translateY(-80px);
+        }
+    }
+
+    @keyframes coinFlip {
+        0%, 100% {
+            transform: rotateY(0deg);
+        }
+        50% {
+            transform: rotateY(180deg);
+        }
+    }
+
+    @keyframes fadeIn {
+        to {
+            opacity: 1;
+        }
+    }
+
+    .hidden {
+        display: none;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="loading-container">
+    <h2>🎋 占卜进行中 🎋</h2>
+
+    <div class="info-box">
+        <p><strong>占卜事项：</strong>{{ thing }}</p>
+        <p>请保持心诚，静待卦象显现...</p>
+    </div>
+
+    <!-- 焚香阶段 -->
+    <div id="incense-phase">
+        <h3 class="phase-title">第一步：焚香祈福</h3>
+        <div class="animation-area">
+            <div class="incense-stick"></div>
+            <div class="smoke"></div>
+            <div class="smoke" style="left: calc(50% - 15px); animation-delay: 0.5s;"></div>
+            <div class="smoke" style="left: calc(50% + 15px); animation-delay: 1s;"></div>
+        </div>
+        <div class="step-info" id="incense-step">准备开始焚香...</div>
+    </div>
+
+    <!-- 掷币阶段 -->
+    <div id="coin-phase" class="hidden">
+        <h3 class="phase-title">第二步：掷币起卦</h3>
+        <div class="animation-area">
+            <div class="coin"></div>
+            <div class="coin"></div>
+            <div class="coin"></div>
+        </div>
+        <div class="step-info" id="coin-step">准备开始掷币...</div>
+    </div>
+
+    <!-- 卦象生成阶段 -->
+    <div id="hexagram-phase" class="hidden">
+        <h3 class="phase-title">第三步：卦象生成</h3>
+        <div class="hexagram-building" id="hexagram-display">
+            <!-- 卦象将在这里动态生成 -->
+        </div>
+        <div class="step-info" id="hexagram-step">正在生成卦象...</div>
+    </div>
+
+    <!-- 进度条 -->
+    <div class="progress-container">
+        <div class="progress-bar" id="overall-progress"></div>
+    </div>
+    <div id="progress-text">总体进度: 0%</div>
+
+    <!-- 完成提示 -->
+    <div id="completion-message" class="hidden">
+        <div class="success" style="margin: 30px 0;">
+            <h3>✨ 占卜完成 ✨</h3>
+            <p>卦象已生成，正在跳转到结果页面...</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const incensePhase = document.getElementById('incense-phase');
+        const coinPhase = document.getElementById('coin-phase');
+        const hexagramPhase = document.getElementById('hexagram-phase');
+        const completionMessage = document.getElementById('completion-message');
+
+        const incenseStep = document.getElementById('incense-step');
+        const coinStep = document.getElementById('coin-step');
+        const hexagramStep = document.getElementById('hexagram-step');
+        const hexagramDisplay = document.getElementById('hexagram-display');
+
+        const overallProgress = document.getElementById('overall-progress');
+        const progressText = document.getElementById('progress-text');
+
+        let currentProgress = 0;
+        let currentPhase = 'incense';
+
+        // 更新进度条
+        function updateProgress(progress) {
+            currentProgress = progress;
+            overallProgress.style.width = progress + '%';
+            progressText.textContent = '总体进度: ' + progress + '%';
+        }
+
+        // 切换到下一个阶段
+        function nextPhase() {
+            if (currentPhase === 'incense') {
+                incensePhase.classList.add('hidden');
+                coinPhase.classList.remove('hidden');
+                currentPhase = 'coin';
+                startCoinPhase();
+            } else if (currentPhase === 'coin') {
+                coinPhase.classList.add('hidden');
+                hexagramPhase.classList.remove('hidden');
+                currentPhase = 'hexagram';
+                startHexagramPhase();
+            } else if (currentPhase === 'hexagram') {
+                // 所有阶段完成
+                completionMessage.classList.remove('hidden');
+                // 获取最终结果
+                getFinalResult();
+            }
+        }
+
+        // 焚香阶段
+        function startIncensePhase() {
+            let incenseProgress = 0;
+            const incenseInterval = setInterval(() => {
+                fetch("/incense_burning/", {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': getCSRFToken(),
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({})
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        incenseStep.textContent = data.step;
+                        incenseProgress = data.progress;
+
+                        // 更新总体进度（焚香阶段占30%）
+                        updateProgress(Math.floor(incenseProgress * 0.3));
+
+                        if (incenseProgress >= 100) {
+                            clearInterval(incenseInterval);
+                            setTimeout(nextPhase, 1000);
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('焚香请求失败:', error);
+                });
+            }, 1200);
+        }
+
+        // 掷币阶段
+        function startCoinPhase() {
+            let coinProgress = 0;
+            const coinInterval = setInterval(() => {
+                fetch("/throwing_coins/", {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': getCSRFToken(),
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({})
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        coinStep.textContent = data.step;
+                        coinProgress = data.progress;
+
+                        // 更新总体进度（掷币阶段占40%，加上焚香的30%）
+                        updateProgress(30 + Math.floor(coinProgress * 0.4));
+
+                        if (coinProgress >= 100) {
+                            clearInterval(coinInterval);
+                            setTimeout(nextPhase, 1000);
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('掷币请求失败:', error);
+                });
+            }, 1000);
+        }
+
+        // 卦象生成阶段
+        function startHexagramPhase() {
+            const hexagramLines = [];
+            let lineIndex = 0;
+
+            const hexagramInterval = setInterval(() => {
+                if (lineIndex < 6) {
+                    // 模拟生成每一爻
+                    const lineTypes = ["—", "- -", "—   x", "- -   x"];
+                    const randomLine = lineTypes[Math.floor(Math.random() * lineTypes.length)];
+                    hexagramLines.push(randomLine);
+
+                    // 显示生成的爻
+                    const lineElement = document.createElement('div');
+                    lineElement.className = 'hexagram-line';
+                    lineElement.textContent = randomLine;
+                    lineElement.style.animationDelay = (lineIndex * 0.3) + 's';
+                    hexagramDisplay.appendChild(lineElement);
+
+                    hexagramStep.textContent = `正在生成第 ${6 - lineIndex} 爻...`;
+                    lineIndex++;
+
+                    // 更新总体进度（卦象生成阶段占30%，加上前面的70%）
+                    updateProgress(70 + Math.floor((lineIndex / 6) * 30));
+                } else {
+                    clearInterval(hexagramInterval);
+                    hexagramStep.textContent = "卦象生成完成！";
+                    setTimeout(nextPhase, 1500);
+                }
+            }, 800);
+        }
+
+        // 获取最终结果并跳转
+        function getFinalResult() {
+            fetch("/get_fortune_result/", {
+                method: 'GET',
+                headers: {
+                    'X-CSRFToken': getCSRFToken(),
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    // 跳转到结果页面
+                    setTimeout(() => {
+                        window.location.href = "/detail/" + data.record_id + "/";
+                    }, 2000);
+                } else {
+                    alert('获取卦象结果失败，请重试');
+                    window.location.href = "/index/";
+                }
+            })
+            .catch(error => {
+                console.error('获取结果失败:', error);
+                alert('网络错误，请重试');
+                window.location.href = "/index/";
+            });
+        }
+        
+        // 获取CSRF token
+        function getCSRFToken() {
+            const name = 'csrftoken';
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        
+        // 开始动画流程
+        setTimeout(startIncensePhase, 1000);
+    });
+</script>
+{% endblock %}

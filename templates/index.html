@@ -1,0 +1,28 @@
+{% extends "fortune_app/base.html" %}
+
+{% block content %}
+<div style="text-align: center;">
+    <h2>心诚则灵</h2>
+    <form method="post" action="{% url 'fortune_app:calculate_fortune' %}">
+        {% csrf_token %}
+        <div style="margin: 20px 0;">
+            <label for="thing">请输入您要占卜的事情：</label><br>
+            <textarea id="thing" name="thing" rows="3" cols="50" required></textarea>
+        </div>
+        
+        {% if error %}
+        <div style="color: red; margin: 10px 0;">{{ error }}</div>
+        {% endif %}
+        
+        <button type="submit" class="btn">开始占卜</button>
+    </form>
+    
+    <div style="margin-top: 30px;">
+        <a href="{% url 'fortune_app:fortune_history' %}" class="btn">查看占卜历史</a>
+    </div>
+    
+    <div style="margin-top: 20px; color: #666; font-size: 14px;">
+        <p>《周易》有云：君子居则观其象而玩其辞，动则观其变而玩其占</p>
+    </div>
+</div>
+{% endblock %}

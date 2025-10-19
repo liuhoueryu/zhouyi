@@ -1,0 +1,40 @@
+{% extends "fortune_app/base.html" %}
+
+{% block content %}
+<div style="text-align: center;">
+    <h2>占卜结果</h2>
+    
+    <div class="info">
+        <p><strong>占卜事项：</strong>{{ thing }}</p>
+        <p><strong>卦象名称：</strong>{{ hexagram_name }}</p>
+        <p><strong>占卜时间：</strong>{{ created_time|date:"Y年m月d日 H时i分" }}</p>
+    </div>
+    
+    <div class="hexagram">
+        <h3>卦象显示：</h3>
+        {% for line in hexagram_lines %}
+            <div>{{ line }}</div>
+        {% endfor %}
+    </div>
+    
+    {% if changing_lines %}
+    <div class="changing-lines">
+        <p><strong>变爻位置：</strong>
+            {% for line in changing_lines %}
+                第{{ line|add:1 }}爻{% if not forloop.last %}、{% endif %}
+            {% endfor %}
+        </p>
+    </div>
+    {% endif %}
+    
+    <div class="actions">
+        <a href="{{ result_url }}" target="_blank" class="btn">查看卦象详解</a>
+        <a href="{% url 'fortune_app:index' %}" class="btn">再次占卜</a>
+        <a href="{% url 'fortune_app:fortune_history' %}" class="btn">查看历史</a>
+    </div>
+    
+    <div style="margin-top: 30px; color: #8B4513; font-style: italic;">
+        <p>《易》曰：自天佑之，吉无不利</p>
+    </div>
+</div>
+{% endblock %}
