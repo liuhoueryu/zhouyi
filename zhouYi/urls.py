@@ -29,4 +29,8 @@ urlpatterns = [
     path('index/', views.index),
     path('history/', views.fortune_history, name='fortune_history'),
     path('detail/<int:record_id>/', views.fortune_detail, name='fortune_detail'),
+    path('get-ai-analysis/<int:record_id>/', views.get_ai_analysis, name='get_ai_analysis'),
+    path('ai-insights/', views.ai_insights, name='ai_insights'),
+    path('search/', views.search_fortune, name='search_fortune'),
+    path('api/fortune/', views.api_fortune, name='api_fortune'),
 ]

@@ -1,0 +1,571 @@
+{% extends "zhouyi_app/base.html" %}
+
+{% block title %}AI深度分析 - 周易占卜系统{% endblock %}
+
+{% block extra_css %}
+<style>
+    .ai-analysis-container {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .ai-header {
+        text-align: center;
+        margin-bottom: 40px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+    
+    .ai-section {
+        background: white;
+        border-radius: 12px;
+        padding: 25px;
+        margin-bottom: 25px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        border-left: 5px solid #667eea;
+    }
+    
+    .sentiment-analysis {
+        border-left-color: #4CAF50;
+    }
+    
+    .ai-interpretation {
+        border-left-color: #FF9800;
+    }
+    
+    .trend-prediction {
+        border-left-color: #2196F3;
+    }
+    
+    .similar-cases {
+        border-left-color: #9C27B0;
+    }
+    
+    .sentiment-badge {
+        display: inline-block;
+        padding: 8px 20px;
+        border-radius: 25px;
+        font-weight: bold;
+        margin: 10px 5px;
+        color: white;
+        font-size: 16px;
+        box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16);
+    }
+    
+    .sentiment-positive { 
+        background: linear-gradient(135deg, #4CAF50, #45a049);
+    }
+    
+    .sentiment-negative { 
+        background: linear-gradient(135deg, #f44336, #da190b);
+    }
+    
+    .sentiment-neutral { 
+        background: linear-gradient(135deg, #FF9800, #e68900);
+    }
+    
+    .confidence-meter {
+        width: 100%;
+        height: 20px;
+        background: #f0f0f0;
+        border-radius: 10px;
+        margin: 15px 0;
+        overflow: hidden;
+    }
+    
+    .confidence-fill {
+        height: 100%;
+        border-radius: 10px;
+        transition: width 1s ease-in-out;
+    }
+    
+    .confidence-high { background: linear-gradient(90deg, #4CAF50, #8BC34A); }
+    .confidence-medium { background: linear-gradient(90deg, #FF9800, #FFC107); }
+    .confidence-low { background: linear-gradient(90deg, #f44336, #FF5722); }
+    
+    .ai-interpretation-text {
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 10px;
+        border-left: 4px solid #FF9800;
+        font-size: 16px;
+        line-height: 1.6;
+        margin: 15px 0;
+    }
+    
+    .trend-indicator {
+        display: inline-flex;
+        align-items: center;
+        padding: 10px 20px;
+        border-radius: 25px;
+        background: #e3f2fd;
+        margin: 10px 5px;
+        font-weight: bold;
+        color: #1976D2;
+    }
+    
+    .trend-rising {
+        background: #e8f5e9;
+        color: #2E7D32;
+    }
+    
+    .trend-emerging {
+        background: #fff3e0;
+        color: #EF6C00;
+    }
+    
+    .trend-stable {
+        background: #f3e5f5;
+        color: #7B1FA2;
+    }
+    
+    .similar-case-card {
+        background: white;
+        border-radius: 10px;
+        padding: 15px;
+        margin: 10px 0;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+        border: 1px solid #e0e0e0;
+        transition: all 0.3s ease;
+    }
+    
+    .similar-case-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        border-left: 4px solid #9C27B0;
+    }
+    
+    .similarity-bar {
+        height: 8px;
+        background: #f0f0f0;
+        border-radius: 4px;
+        margin: 8px 0;
+        overflow: hidden;
+    }
+    
+    .similarity-fill {
+        height: 100%;
+        border-radius: 4px;
+        background: linear-gradient(90deg, #9C27B0, #E91E63);
+    }
+    
+    .stat-card {
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        text-align: center;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        margin: 10px;
+        flex: 1;
+        min-width: 150px;
+    }
+    
+    .stat-value {
+        font-size: 32px;
+        font-weight: bold;
+        color: #667eea;
+        margin: 10px 0;
+    }
+    
+    .stat-label {
+        color: #666;
+        font-size: 14px;
+    }
+    
+    .stats-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        margin: 20px 0;
+    }
+    
+    .ai-loading {
+        text-align: center;
+        padding: 40px;
+    }
+    
+    .pulse-dots {
+        display: inline-block;
+        margin: 20px 0;
+    }
+    
+    .pulse-dots span {
+        display: inline-block;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: #667eea;
+        margin: 0 4px;
+        animation: pulse 1.4s infinite ease-in-out;
+    }
+    
+    .pulse-dots span:nth-child(1) { animation-delay: -0.32s; }
+    .pulse-dots span:nth-child(2) { animation-delay: -0.16s; }
+    
+    @keyframes pulse {
+        0%, 80%, 100% { transform: scale(0); }
+        40% { transform: scale(1); }
+    }
+    
+    .section-title {
+        display: flex;
+        align-items: center;
+        margin-bottom: 20px;
+        color: #333;
+        border-bottom: 2px solid #f0f0f0;
+        padding-bottom: 10px;
+    }
+    
+    .section-title i {
+        font-size: 24px;
+        margin-right: 10px;
+    }
+    
+    .tech-badge {
+        display: inline-block;
+        background: #e0e0e0;
+        color: #666;
+        padding: 4px 10px;
+        border-radius: 12px;
+        font-size: 12px;
+        margin: 0 5px;
+    }
+    
+    .model-info {
+        background: #f5f5f5;
+        padding: 15px;
+        border-radius: 8px;
+        margin: 15px 0;
+        font-size: 14px;
+        color: #666;
+    }
+    
+    @media (max-width: 768px) {
+        .ai-analysis-container {
+            padding: 10px;
+        }
+        
+        .stats-container {
+            flex-direction: column;
+        }
+        
+        .stat-card {
+            margin: 5px 0;
+        }
+        
+        .ai-header {
+            padding: 20px 15px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="ai-analysis-container">
+    <!-- AI分析头部 -->
+    <div class="ai-header">
+        <h1>🤖 AI深度分析报告</h1>
+        <p>基于深度学习算法的个性化卦象解读</p>
+        <div class="stats-container">
+            <div class="stat-card">
+                <div class="stat-value">{{ record.hexagram_name }}</div>
+                <div class="stat-label">卦象名称</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{{ record.created_time|date:"m/d" }}</div>
+                <div class="stat-label">占卜日期</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">
+                    {% if record.sentiment_analysis.confidence %}
+                        {{ record.sentiment_analysis.confidence|floatformat:2 }}
+                    {% else %}
+                        -
+                    {% endif %}
+                </div>
+                <div class="stat-label">分析置信度</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 检查AI分析是否完成 -->
+    {% if not record.ai_interpretation %}
+    <div class="ai-loading">
+        <h3>🔮 AI深度分析进行中</h3>
+        <div class="pulse-dots">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        <p>正在运用深度学习算法为您生成个性化解读...</p>
+        <div class="model-info">
+            <p><strong>分析流程：</strong></p>
+            <ol style="text-align: left; display: inline-block;">
+                <li>情感分析模型处理您的查询</li>
+                <li>自然语言生成模型创建个性化解读</li>
+                <li>相似度算法查找相关历史案例</li>
+                <li>趋势预测模型分析卦象模式</li>
+            </ol>
+        </div>
+        <p>这通常需要几秒钟时间，请耐心等待...</p>
+    </div>
+    {% else %}
+
+    <!-- 情感分析部分 -->
+    <div class="ai-section sentiment-analysis">
+        <div class="section-title">
+            <i>😊</i>
+            <h2>情感分析</h2>
+        </div>
+
+        <p>AI分析了您查询事项的情感倾向：</p>
+
+        <div style="text-align: center; margin: 20px 0;">
+            {% if record.sentiment_analysis.sentiment == "积极" %}
+            <div class="sentiment-badge sentiment-positive">
+                😊 积极乐观
+            </div>
+            {% elif record.sentiment_analysis.sentiment == "消极" %}
+            <div class="sentiment-badge sentiment-negative">
+                😔 担忧焦虑
+            </div>
+            {% else %}
+            <div class="sentiment-badge sentiment-neutral">
+                😐 中性平静
+            </div>
+            {% endif %}
+        </div>
+
+        <p><strong>置信度：</strong> {{ record.sentiment_analysis.confidence|floatformat:2 }}</p>
+        <div class="confidence-meter">
+            <div class="confidence-fill
+                {% if record.sentiment_analysis.confidence > 0.7 %}confidence-high
+                {% elif record.sentiment_analysis.confidence > 0.4 %}confidence-medium
+                {% else %}confidence-low{% endif %}"
+                style="width: {{ record.sentiment_analysis.confidence|floatformat:2 }}%">
+            </div>
+        </div>
+
+        <div class="model-info">
+            <p><strong>技术说明：</strong> 使用基于Transformer的情感分析模型，分析您查询文本的情感倾向。</p>
+            <span class="tech-badge">BERT架构</span>
+            <span class="tech-badge">中文情感分析</span>
+            <span class="tech-badge">深度学习</span>
+        </div>
+    </div>
+
+    <!-- AI个性化解读 -->
+    <div class="ai-section ai-interpretation">
+        <div class="section-title">
+            <i>💡</i>
+            <h2>AI个性化解读</h2>
+        </div>
+
+        <p>基于您的情感状态和卦象特征，AI生成了以下个性化解读：</p>
+
+        <div class="ai-interpretation-text">
+            {{ record.ai_interpretation }}
+        </div>
+
+        <div class="model-info">
+            <p><strong>技术说明：</strong> 使用GPT系列模型，结合您的情感分析和卦象特征，生成个性化的智慧建议。</p>
+            <span class="tech-badge">GPT模型</span>
+            <span class="tech-badge">自然语言生成</span>
+            <span class="tech-badge">上下文理解</span>
+        </div>
+    </div>
+
+    <!-- 趋势预测 -->
+    <div class="ai-section trend-prediction">
+        <div class="section-title">
+            <i>📈</i>
+            <h2>趋势预测分析</h2>
+        </div>
+
+        <p>基于历史数据，AI分析了此卦象的出现模式和趋势：</p>
+
+        <div style="text-align: center; margin: 20px 0;">
+            {% if record.trend_prediction.trend == "rising" %}
+            <div class="trend-indicator trend-rising">
+                📈 常见卦象
+            </div>
+            {% elif record.trend_prediction.trend == "emerging" %}
+            <div class="trend-indicator trend-emerging">
+                🌟 新兴卦象
+            </div>
+            {% else %}
+            <div class="trend-indicator trend-stable">
+                ⚖️ 稳定卦象
+            </div>
+            {% endif %}
+        </div>
+
+        <div style="margin: 15px 0;">
+            <p><strong>历史出现概率：</strong> {{ record.trend_prediction.probability|floatformat:3 }}</p>
+            <p><strong>分析置信度：</strong> {{ record.trend_prediction.confidence|floatformat:2 }}</p>
+            <p><strong>基于数据量：</strong> {{ record.trend_prediction.total_cases }} 个历史案例</p>
+        </div>
+
+        <div class="model-info">
+            <p><strong>技术说明：</strong> 使用统计分析和模式识别算法，基于历史占卜数据预测卦象趋势。</p>
+            <span class="tech-badge">统计分析</span>
+            <span class="tech-badge">模式识别</span>
+            <span class="tech-badge">概率预测</span>
+        </div>
+    </div>
+
+    <!-- 相似案例 -->
+    <div class="ai-section similar-cases">
+        <div class="section-title">
+            <i>🔍</i>
+            <h2>相似历史案例</h2>
+        </div>
+
+        <p>AI找到了与您查询相似的历史占卜案例：</p>
+
+        {% if record.similar_cases %}
+            {% for case in record.similar_cases %}
+            <div class="similar-case-card">
+                <a href="/detail/{{ case.id }}/" style="text-decoration: none; color: inherit;">
+                    <h4>{{ case.thing }}</h4>
+                    <p><strong>卦象：</strong> {{ case.hexagram_name }}</p>
+                    <p><strong>时间：</strong> {{ case.time|slice:":10" }}</p>
+                    <p><strong>相似度：</strong> {{ case.similarity|floatformat:2 }}</p>
+                    <div class="similarity-bar">
+                        <div class="similarity-fill" style="width: {{ case.similarity|floatformat:2 }}%"></div>
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p style="text-align: center; padding: 20px; color: #666;">
+                暂无高度相似的历史案例
+            </p>
+        {% endif %}
+
+        <div class="model-info">
+            <p><strong>技术说明：</strong> 使用TF-IDF向量化和余弦相似度算法，在历史数据中查找语义相似的占卜案例。</p>
+            <span class="tech-badge">TF-IDF</span>
+            <span class="tech-badge">余弦相似度</span>
+            <span class="tech-badge">语义分析</span>
+        </div>
+    </div>
+
+    <!-- AI模型信息 -->
+    <div class="ai-section">
+        <div class="section-title">
+            <i>🔧</i>
+            <h2>AI技术架构</h2>
+        </div>
+
+        <p>本分析系统使用了多种先进的深度学习技术：</p>
+
+        <div style="display: flex; flex-wrap: wrap; justify-content: center; margin: 20px 0;">
+            <div class="stat-card">
+                <div class="stat-value">3+</div>
+                <div class="stat-label">AI模型</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">深度学习</div>
+                <div class="stat-label">核心技术</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">实时</div>
+                <div class="stat-label">分析速度</div>
+            </div>
+        </div>
+
+        <div class="model-info">
+            <h4>使用的模型和技术：</h4>
+            <ul>
+                <li><strong>情感分析：</strong> 基于Transformer的中文情感分类模型</li>
+                <li><strong>文本生成：</strong> GPT系列中文语言模型</li>
+                <li><strong>相似度计算：</strong> TF-IDF + 余弦相似度算法</li>
+                <li><strong>趋势预测：</strong> 统计分析 + 模式识别</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- 注意事项 -->
+    <div class="warning-box" style="margin-top: 30px;">
+        <h4>💡 使用说明</h4>
+        <p>AI分析结果基于算法模型生成，仅供参考。真正的智慧来自于内心的思考和现实的实践。</p>
+        <p>《周易》有云："观乎天文，以察时变；观乎人文，以化成天下。" 愿AI分析能为您提供新的视角，但最终决策仍需依靠您自己的智慧。</p>
+    </div>
+
+    {% endif %}
+
+    <!-- 操作按钮 -->
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // 如果AI分析尚未完成，定期检查更新
+    {% if not record.ai_interpretation %}
+    function checkAiAnalysis() {
+        fetch("/detail/{{ record.id }}/")
+            .then(response => response.json())
+            .then(data => {
+                if (data.has_analysis) {
+                    // 重新加载页面以显示AI分析
+                    location.reload();
+                } else {
+                    // 5秒后再次检查
+                    setTimeout(checkAiAnalysis, 5000);
+                }
+            })
+            .catch(error => {
+                console.error('检查AI分析失败:', error);
+                setTimeout(checkAiAnalysis, 10000);
+            });
+    }
+
+    // 页面加载后开始检查
+    document.addEventListener('DOMContentLoaded', function() {
+        setTimeout(checkAiAnalysis, 3000);
+    });
+    {% else %}
+    // 如果AI分析已完成，添加一些交互动画
+    document.addEventListener('DOMContentLoaded', function() {
+        // 渐入动画
+        const sections = document.querySelectorAll('.ai-section');
+        sections.forEach((section, index) => {
+            section.style.opacity = '0';
+            section.style.transform = 'translateY(20px)';
+
+            setTimeout(() => {
+                section.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                section.style.opacity = '1';
+                section.style.transform = 'translateY(0)';
+            }, index * 200);
+        });
+
+        // 进度条动画
+        const confidenceFill = document.querySelector('.confidence-fill');
+        if (confidenceFill) {
+            const width = confidenceFill.style.width;
+            confidenceFill.style.width = '0';
+            setTimeout(() => {
+                confidenceFill.style.width = width;
+            }, 500);
+        }
+
+        // 相似度条动画
+        const similarityFills = document.querySelectorAll('.similarity-fill');
+        similarityFills.forEach((fill, index) => {
+            const width = fill.style.width;
+            fill.style.width = '0';
+            setTimeout(() => {
+                fill.style.width = width;
+            }, 800 + index * 200);
+        });
+    });
+    {% endif %}
+</script>
+{% endblock %}

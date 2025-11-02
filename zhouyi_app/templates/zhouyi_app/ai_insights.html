@@ -1,0 +1,68 @@
+{% extends "zhouyi_app/base.html" %}
+
+{% block title %}AI洞察 - 周易占卜系统{% endblock %}
+
+{% block content %}
+<div style="text-align: center;">
+    <h2>🤖 AI深度洞察</h2>
+    
+    {% if not ai_enabled %}
+    <div class="warning-box">
+        <h4>⚠️ AI功能未完全启用</h4>
+        <p>部分深度学习模型加载失败，AI功能可能受限。请检查模型依赖安装。</p>
+    </div>
+    {% endif %}
+    
+    <div class="info-box">
+        <h3>数据概览</h3>
+        <p>总占卜记录: <strong>{{ total_records }}</strong> 条</p>
+        <p>AI分析记录: <strong>{{ recent_ai_analyzed|length }}</strong> 条</p>
+    </div>
+    
+    <!-- 情感分布 -->
+    {% if sentiment_data %}
+    <div style="margin: 30px 0;">
+        <h3>情感分布分析</h3>
+        <div style="display: flex; justify-content: center; flex-wrap: wrap;">
+            {% for sentiment, count in sentiment_data.items %}
+            <div style="margin: 10px; text-align: center;">
+                <div class="sentiment-badge sentiment-{{ sentiment }}">
+                    {{ sentiment }}
+                </div>
+                <div style="font-size: 24px; font-weight: bold;">{{ count }}</div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- 最近AI分析记录 -->
+    {% if recent_ai_analyzed %}
+    <div style="margin: 30px 0;">
+        <h3>最近AI分析记录</h3>
+        <div style="text-align: left; max-width: 600px; margin: 0 auto;">
+            {% for record in recent_ai_analyzed %}
+            <div class="similar-case">
+                <a href="/detail/{{ record.id }}/">
+                    <strong>{{ record.thing }}</strong><br>
+                    <span class="sentiment-badge sentiment-{{ record.sentiment_analysis.sentiment|default:'neutral' }}" style="font-size: 12px;">
+                        {{ record.sentiment_analysis.sentiment|default:"中性" }}
+                    </span>
+                    <small>· {{ record.hexagram_name }} · {{ record.created_time|date:"m-d H:i" }}</small>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+    
+    <div style="margin: 30px 0;">
+        <a href="/index/" class="btn">返回首页</a>
+        <a href="/history/" class="btn btn-secondary">查看全部历史</a>
+    </div>
+    
+    <div style="margin-top: 40px; color: #666; font-size: 14px;">
+        <p>💡 AI洞察基于深度学习算法分析历史占卜数据，提供数据驱动的智慧建议</p>
+    </div>
+</div>
+{% endblock %}
