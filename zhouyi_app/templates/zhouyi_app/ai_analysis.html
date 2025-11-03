@@ -1,5 +1,5 @@
 {% extends "zhouyi_app/base.html" %}
-
+{% load math_extras %}
 {% block title %}AI深度分析 - 周易占卜系统{% endblock %}
 
 {% block extra_css %}
@@ -346,7 +346,7 @@
                 {% if record.sentiment_analysis.confidence > 0.7 %}confidence-high
                 {% elif record.sentiment_analysis.confidence > 0.4 %}confidence-medium
                 {% else %}confidence-low{% endif %}"
-                style="width: {{ record.sentiment_analysis.confidence|floatformat:2 }}%">
+                style="width: {{ record.sentiment_analysis.confidence|floatformat:2|mul:100 }}%">
             </div>
         </div>
 
@@ -436,7 +436,7 @@
                     <p><strong>时间：</strong> {{ case.time|slice:":10" }}</p>
                     <p><strong>相似度：</strong> {{ case.similarity|floatformat:2 }}</p>
                     <div class="similarity-bar">
-                        <div class="similarity-fill" style="width: {{ case.similarity|floatformat:2 }}%"></div>
+                        <div class="similarity-fill" style="width: {{ case.similarity|floatformat:2|mul:100 }}%"></div>
                     </div>
                 </a>
             </div>

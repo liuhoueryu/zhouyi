@@ -5,146 +5,474 @@
 {% block extra_css %}
 <style>
     .loading-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 30px 20px;
         text-align: center;
-        padding: 40px 20px;
     }
 
-    .animation-area {
-        height: 200px;
+    .page-title {
+        color: #5D4037;
+        font-size: 2.2em;
+        margin-bottom: 20px;
+        font-weight: 600;
         position: relative;
-        margin: 30px 0;
+        padding-bottom: 15px;
     }
 
-    .incense-stick {
+    .page-title::after {
+        content: "";
         position: absolute;
         bottom: 0;
         left: 50%;
         transform: translateX(-50%);
-        width: 8px;
-        height: 120px;
-        background: linear-gradient(to top, #8B4513 0%, #D2691E 100%);
-        border-radius: 4px;
+        width: 120px;
+        height: 3px;
+        background: linear-gradient(90deg, transparent, #8B4513, transparent);
+        border-radius: 3px;
     }
 
-    .smoke {
+    .info-box {
+        background: linear-gradient(135deg, #faf3e8 0%, #f5e6d3 100%);
+        border: 2px solid rgba(139, 69, 19, 0.2);
+        border-radius: 16px;
+        padding: 25px;
+        margin: 30px 0;
+        text-align: center;
+        color: #5D4037;
+        font-size: 1.1em;
+        line-height: 1.6;
+        box-shadow: 0 8px 25px rgba(139, 69, 19, 0.08);
+    }
+
+    .phase-container {
+        background: linear-gradient(145deg, #ffffff 0%, #f8f9fa 100%);
+        border-radius: 20px;
+        padding: 30px;
+        margin: 30px 0;
+        box-shadow: 0 10px 40px rgba(139, 69, 19, 0.1);
+        border: 1px solid rgba(139, 69, 19, 0.1);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .phase-container::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #8B4513, #D2B48C, #8B4513);
+        border-radius: 20px 20px 0 0;
+    }
+
+    .phase-title {
+        font-size: 1.5em;
+        color: #8B4513;
+        margin: 0 0 25px 0;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+    }
+
+    .phase-title::before,
+    .phase-title::after {
+        content: "✦";
+        color: #D2B48C;
+        font-size: 0.8em;
+    }
+
+    .animation-area {
+        height: 180px;
+        position: relative;
+        margin: 25px 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* 焚香动画优化 */
+    .incense-altar {
+        position: relative;
+        width: 200px;
+        height: 120px;
+    }
+
+    .incense-bowl {
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 80px;
+        height: 30px;
+        background: linear-gradient(135deg, #8B4513, #A0522D);
+        border-radius: 40% 40% 0 0;
+        box-shadow: 0 4px 12px rgba(139, 69, 19, 0.3);
+    }
+
+    .incense-stick {
+        position: absolute;
+        bottom: 30px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 6px;
+        height: 100px;
+        background: linear-gradient(to top, #8B4513 0%, #D2691E 50%, #F4A460 100%);
+        border-radius: 3px;
+        z-index: 2;
+    }
+
+    .incense-tip {
         position: absolute;
         top: 0;
         left: 50%;
         transform: translateX(-50%);
-        width: 4px;
-        height: 0;
-        background: rgba(255, 255, 255, 0.8);
+        width: 8px;
+        height: 8px;
+        background: #FF6B35;
         border-radius: 50%;
-        animation: smokeRise 3s infinite;
+        animation: glow 2s infinite alternate;
+    }
+
+    .smoke {
+        position: absolute;
+        top: -10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 6px;
+        height: 0;
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 50%;
+        filter: blur(4px);
+        animation: smokeRise 3s infinite ease-out;
+    }
+
+    .smoke:nth-child(2) {
+        left: calc(50% - 8px);
+        animation-delay: 0.8s;
+    }
+
+    .smoke:nth-child(3) {
+        left: calc(50% + 8px);
+        animation-delay: 1.6s;
+    }
+
+    /* 铜钱动画优化 */
+    .coins-container {
+        display: flex;
+        gap: 20px;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
     }
 
     .coin {
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, #FFD700, #D4AF37, #B8860B);
+        border-radius: 50%;
+        position: relative;
+        box-shadow:
+            0 6px 15px rgba(0,0,0,0.2),
+            inset 0 -4px 8px rgba(0,0,0,0.3),
+            inset 0 4px 8px rgba(255,255,255,0.4);
+        animation: coinFlip 2s infinite ease-in-out;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        color: #8B4513;
+        font-size: 0.8em;
+    }
+
+    .coin::before {
+        content: "";
+        position: absolute;
         width: 40px;
         height: 40px;
-        background: linear-gradient(45deg, #FFD700, #D4AF37);
+        border: 2px solid #8B4513;
         border-radius: 50%;
-        display: inline-block;
-        margin: 10px;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-        position: relative;
-        animation: coinFlip 2s infinite;
+    }
+
+    .coin:nth-child(1) {
+        animation-delay: 0s;
     }
 
     .coin:nth-child(2) {
-        animation-delay: 0.3s;
+        animation-delay: 0.4s;
     }
 
     .coin:nth-child(3) {
-        animation-delay: 0.6s;
+        animation-delay: 0.8s;
     }
 
+    /* 卦象生成优化 */
     .hexagram-building {
-        font-size: 36px;
+        font-size: 2.5em;
         line-height: 1.8;
         margin: 20px 0;
         min-height: 220px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        font-family: 'SimSun', 'STKaiti', serif;
+        background: linear-gradient(135deg, #faf3e8 0%, #f5e6d3 100%);
+        border-radius: 16px;
+        padding: 20px;
+        border: 2px solid rgba(139, 69, 19, 0.1);
     }
 
     .hexagram-line {
         opacity: 0;
-        animation: fadeIn 0.5s forwards;
+        margin: 5px 0;
+        padding: 8px 20px;
+        background: rgba(255, 255, 255, 0.7);
+        border-radius: 8px;
+        animation: lineReveal 0.8s forwards;
+        position: relative;
+        transition: all 0.3s ease;
+    }
+
+    .hexagram-line.yang {
+        color: #8B4513;
+        font-weight: bold;
+    }
+
+    .hexagram-line.yin {
+        color: #5D4037;
+    }
+
+    .hexagram-line.changing::after {
+        content: " ○";
+        color: #e74c3c;
+        font-size: 0.7em;
+        position: absolute;
+        right: 10px;
+    }
+
+    /* 进度条优化 */
+    .progress-section {
+        margin: 40px 0 30px;
     }
 
     .progress-container {
         width: 100%;
         background: #f0f0f0;
-        border-radius: 10px;
+        border-radius: 15px;
         margin: 20px 0;
         height: 20px;
         overflow: hidden;
+        box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+        border: 1px solid rgba(139, 69, 19, 0.1);
     }
 
     .progress-bar {
         height: 100%;
-        background: linear-gradient(90deg, #8B4513, #D2691E);
-        border-radius: 10px;
+        background: linear-gradient(90deg, #8B4513, #D2691E, #8B4513);
+        background-size: 200% 100%;
+        border-radius: 15px;
         width: 0%;
-        transition: width 0.5s ease;
+        transition: width 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+        animation: progressShine 2s infinite linear;
+        box-shadow: 0 2px 8px rgba(139, 69, 19, 0.3);
+    }
+
+    .progress-text {
+        font-size: 1.1em;
+        color: #5D4037;
+        font-weight: 500;
+        margin: 10px 0;
     }
 
     .step-info {
         margin: 20px 0;
-        font-size: 18px;
-        color: #8B4513;
+        font-size: 1.1em;
+        color: #5D4037;
         min-height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-style: italic;
+        background: rgba(139, 69, 19, 0.05);
+        padding: 15px;
+        border-radius: 10px;
+        border-left: 4px solid #8B4513;
     }
 
-    .phase-title {
-        font-size: 24px;
-        color: #8B4513;
-        margin: 30px 0 20px;
-        border-bottom: 2px solid #8B4513;
-        padding-bottom: 10px;
-        display: inline-block;
+    /* 完成提示优化 */
+    .completion-section {
+        background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+        border: 2px solid #28a745;
+        border-radius: 20px;
+        padding: 40px 30px;
+        margin: 30px 0;
+        text-align: center;
+        animation: pulse 2s infinite;
     }
 
+    .completion-title {
+        color: #155724;
+        font-size: 1.8em;
+        margin-bottom: 15px;
+        font-weight: 600;
+    }
+
+    .completion-message {
+        color: #155724;
+        font-size: 1.1em;
+        margin: 0;
+    }
+
+    /* 动画定义 */
     @keyframes smokeRise {
         0% {
             height: 0;
             opacity: 0;
-            transform: translateX(-50%) translateY(0);
+            transform: translateX(-50%) translateY(0) scale(0.8);
         }
-        50% {
-            height: 80px;
-            opacity: 0.7;
-            transform: translateX(-50%) translateY(-40px);
+        20% {
+            opacity: 0.8;
         }
         100% {
             height: 120px;
             opacity: 0;
-            transform: translateX(-50%) translateY(-80px);
+            transform: translateX(-50%) translateY(-100px) scale(1.5);
+        }
+    }
+
+    @keyframes glow {
+        0% {
+            box-shadow: 0 0 5px #FF6B35;
+        }
+        100% {
+            box-shadow: 0 0 20px #FF6B35, 0 0 30px #FF8C42;
         }
     }
 
     @keyframes coinFlip {
         0%, 100% {
-            transform: rotateY(0deg);
+            transform: rotateY(0deg) translateY(0);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+        }
+        25% {
+            transform: rotateY(180deg) translateY(-10px);
+            box-shadow: 0 12px 25px rgba(0,0,0,0.3);
         }
         50% {
-            transform: rotateY(180deg);
+            transform: rotateY(360deg) translateY(0);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+        }
+        75% {
+            transform: rotateY(540deg) translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.25);
         }
     }
 
-    @keyframes fadeIn {
-        to {
+    @keyframes lineReveal {
+        0% {
+            opacity: 0;
+            transform: translateX(-20px);
+        }
+        100% {
             opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    @keyframes progressShine {
+        0% {
+            background-position: -200% 0;
+        }
+        100% {
+            background-position: 200% 0;
+        }
+    }
+
+    @keyframes pulse {
+        0%, 100% {
+            transform: scale(1);
+        }
+        50% {
+            transform: scale(1.02);
         }
     }
 
     .hidden {
         display: none;
     }
+
+    /* 响应式设计 */
+    @media (max-width: 768px) {
+        .loading-container {
+            padding: 20px 15px;
+        }
+
+        .page-title {
+            font-size: 1.8em;
+        }
+
+        .phase-container {
+            padding: 25px 20px;
+        }
+
+        .hexagram-building {
+            font-size: 2em;
+            padding: 15px;
+        }
+
+        .animation-area {
+            height: 150px;
+        }
+
+        .coin {
+            width: 40px;
+            height: 40px;
+        }
+
+        .coin::before {
+            width: 32px;
+            height: 32px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .page-title {
+            font-size: 1.6em;
+        }
+
+        .phase-title {
+            font-size: 1.3em;
+        }
+
+        .hexagram-building {
+            font-size: 1.6em;
+        }
+
+        .coins-container {
+            gap: 10px;
+        }
+
+        .coin {
+            width: 35px;
+            height: 35px;
+            font-size: 0.7em;
+        }
+
+        .coin::before {
+            width: 28px;
+            height: 28px;
+        }
+    }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="loading-container">
-    <h2>🎋 占卜进行中 🎋</h2>
+    <h1 class="page-title">🎋 占卜进行中 🎋</h1>
 
     <div class="info-box">
         <p><strong>占卜事项：</strong>{{ thing }}</p>
@@ -152,30 +480,37 @@
     </div>
 
     <!-- 焚香阶段 -->
-    <div id="incense-phase">
+    <div id="incense-phase" class="phase-container">
         <h3 class="phase-title">第一步：焚香祈福</h3>
         <div class="animation-area">
-            <div class="incense-stick"></div>
-            <div class="smoke"></div>
-            <div class="smoke" style="left: calc(50% - 15px); animation-delay: 0.5s;"></div>
-            <div class="smoke" style="left: calc(50% + 15px); animation-delay: 1s;"></div>
+            <div class="incense-altar">
+                <div class="incense-bowl"></div>
+                <div class="incense-stick">
+                    <div class="incense-tip"></div>
+                </div>
+                <div class="smoke"></div>
+                <div class="smoke"></div>
+                <div class="smoke"></div>
+            </div>
         </div>
-        <div class="step-info" id="incense-step">准备开始焚香...</div>
+        <div class="step-info" id="incense-step">准备开始焚香祈愿...</div>
     </div>
 
     <!-- 掷币阶段 -->
-    <div id="coin-phase" class="hidden">
+    <div id="coin-phase" class="phase-container hidden">
         <h3 class="phase-title">第二步：掷币起卦</h3>
         <div class="animation-area">
-            <div class="coin"></div>
-            <div class="coin"></div>
-            <div class="coin"></div>
+            <div class="coins-container">
+                <div class="coin">乾</div>
+                <div class="coin">坤</div>
+                <div class="coin">卦</div>
+            </div>
         </div>
-        <div class="step-info" id="coin-step">准备开始掷币...</div>
+        <div class="step-info" id="coin-step">准备开始掷币起卦...</div>
     </div>
 
     <!-- 卦象生成阶段 -->
-    <div id="hexagram-phase" class="hidden">
+    <div id="hexagram-phase" class="phase-container hidden">
         <h3 class="phase-title">第三步：卦象生成</h3>
         <div class="hexagram-building" id="hexagram-display">
             <!-- 卦象将在这里动态生成 -->
@@ -184,17 +519,17 @@
     </div>
 
     <!-- 进度条 -->
-    <div class="progress-container">
-        <div class="progress-bar" id="overall-progress"></div>
+    <div class="progress-section">
+        <div class="progress-container">
+            <div class="progress-bar" id="overall-progress"></div>
+        </div>
+        <div class="progress-text" id="progress-text">总体进度: 0%</div>
     </div>
-    <div id="progress-text">总体进度: 0%</div>
 
     <!-- 完成提示 -->
-    <div id="completion-message" class="hidden">
-        <div class="success" style="margin: 30px 0;">
-            <h3>✨ 占卜完成 ✨</h3>
-            <p>卦象已生成，正在跳转到结果页面...</p>
-        </div>
+    <div id="completion-message" class="completion-section hidden">
+        <h3 class="completion-title">✨ 占卜完成 ✨</h3>
+        <p class="completion-message">卦象已生成，正在跳转到结果页面...</p>
     </div>
 </div>
 {% endblock %}
@@ -248,67 +583,56 @@
         // 焚香阶段
         function startIncensePhase() {
             let incenseProgress = 0;
+            const incenseSteps = [
+                "点燃香火...",
+                "香烟袅袅升起...",
+                "诚心祈愿...",
+                "香火传达心意...",
+                "祈愿完成"
+            ];
+
             const incenseInterval = setInterval(() => {
-                fetch("/incense_burning/", {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRFToken': getCSRFToken(),
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({})
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'success') {
-                        incenseStep.textContent = data.step;
-                        incenseProgress = data.progress;
+                if (incenseProgress < 100) {
+                    incenseProgress += 20;
+                    const stepIndex = Math.min(Math.floor(incenseProgress / 20), incenseSteps.length - 1);
+                    incenseStep.textContent = incenseSteps[stepIndex];
 
-                        // 更新总体进度（焚香阶段占30%）
-                        updateProgress(Math.floor(incenseProgress * 0.3));
-
-                        if (incenseProgress >= 100) {
-                            clearInterval(incenseInterval);
-                            setTimeout(nextPhase, 1000);
-                        }
-                    }
-                })
-                .catch(error => {
-                    console.error('焚香请求失败:', error);
-                });
+                    // 更新总体进度（焚香阶段占30%）
+                    updateProgress(Math.floor(incenseProgress * 0.3));
+                } else {
+                    clearInterval(incenseInterval);
+                    setTimeout(nextPhase, 1000);
+                }
             }, 1200);
         }
 
         // 掷币阶段
         function startCoinPhase() {
             let coinProgress = 0;
+            const coinSteps = [
+                "准备铜钱...",
+                "第一次掷币...",
+                "第二次掷币...",
+                "第三次掷币...",
+                "第四次掷币...",
+                "第五次掷币...",
+                "第六次掷币...",
+                "卦象计算中..."
+            ];
+
             const coinInterval = setInterval(() => {
-                fetch("/throwing_coins/", {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRFToken': getCSRFToken(),
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({})
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'success') {
-                        coinStep.textContent = data.step;
-                        coinProgress = data.progress;
+                if (coinProgress < 100) {
+                    coinProgress += 12.5;
+                    const stepIndex = Math.min(Math.floor(coinProgress / 12.5), coinSteps.length - 1);
+                    coinStep.textContent = coinSteps[stepIndex];
 
-                        // 更新总体进度（掷币阶段占40%，加上焚香的30%）
-                        updateProgress(30 + Math.floor(coinProgress * 0.4));
-
-                        if (coinProgress >= 100) {
-                            clearInterval(coinInterval);
-                            setTimeout(nextPhase, 1000);
-                        }
-                    }
-                })
-                .catch(error => {
-                    console.error('掷币请求失败:', error);
-                });
-            }, 1000);
+                    // 更新总体进度（掷币阶段占40%，加上焚香的30%）
+                    updateProgress(30 + Math.floor(coinProgress * 0.4));
+                } else {
+                    clearInterval(coinInterval);
+                    setTimeout(nextPhase, 1000);
+                }
+            }, 800);
         }
 
         // 卦象生成阶段
@@ -319,15 +643,20 @@
             const hexagramInterval = setInterval(() => {
                 if (lineIndex < 6) {
                     // 模拟生成每一爻
-                    const lineTypes = ["—", "- -", "—   x", "- -   x"];
+                    const lineTypes = [
+                        { type: "yang", text: "———", changing: false },
+                        { type: "yin", text: "— —", changing: false },
+                        { type: "yang", text: "———", changing: true },
+                        { type: "yin", text: "— —", changing: true }
+                    ];
                     const randomLine = lineTypes[Math.floor(Math.random() * lineTypes.length)];
                     hexagramLines.push(randomLine);
 
                     // 显示生成的爻
                     const lineElement = document.createElement('div');
-                    lineElement.className = 'hexagram-line';
-                    lineElement.textContent = randomLine;
-                    lineElement.style.animationDelay = (lineIndex * 0.3) + 's';
+                    lineElement.className = `hexagram-line ${randomLine.type} ${randomLine.changing ? 'changing' : ''}`;
+                    lineElement.textContent = randomLine.text;
+                    lineElement.style.animationDelay = (lineIndex * 0.4) + 's';
                     hexagramDisplay.appendChild(lineElement);
 
                     hexagramStep.textContent = `正在生成第 ${6 - lineIndex} 爻...`;
@@ -340,7 +669,7 @@
                     hexagramStep.textContent = "卦象生成完成！";
                     setTimeout(nextPhase, 1500);
                 }
-            }, 800);
+            }, 600);
         }
 
         // 获取最终结果并跳转
@@ -369,7 +698,7 @@
                 window.location.href = "/index/";
             });
         }
-        
+
         // 获取CSRF token
         function getCSRFToken() {
             const name = 'csrftoken';
@@ -386,6 +715,7 @@
             }
             return cookieValue;
         }
+
         
         // 开始动画流程
         setTimeout(startIncensePhase, 1000);

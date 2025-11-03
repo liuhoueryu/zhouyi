@@ -3,33 +3,319 @@
 {% block title %}占卜历史 - 周易占卜系统{% endblock %}
 
 {% block content %}
-<div>
-    <h2 style="text-align: center;">占卜历史记录</h2>
-    
-    <div style="text-align: center; margin-bottom: 20px;">
+<style>
+    .history-container {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .page-title {
+        text-align: center;
+        color: #5D4037;
+        font-size: 2.2em;
+        margin-bottom: 30px;
+        font-weight: 600;
+        position: relative;
+        padding-bottom: 15px;
+    }
+
+    .page-title::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 120px;
+        height: 3px;
+        background: linear-gradient(90deg, transparent, #8B4513, transparent);
+        border-radius: 3px;
+    }
+
+    .history-stats {
+        text-align: center;
+        background: linear-gradient(135deg, #faf3e8 0%, #f5e6d3 100%);
+        border-radius: 16px;
+        padding: 15px 25px;
+        margin: 25px auto;
+        border: 1px solid rgba(139, 69, 19, 0.1);
+        color: #5D4037;
+        font-size: 1.1em;
+        max-width: 400px;
+        box-shadow: 0 4px 12px rgba(139, 69, 19, 0.08);
+    }
+
+    .history-list {
+        list-style: none;
+        padding: 0;
+        margin: 30px 0;
+    }
+
+    .history-item {
+        background: linear-gradient(135deg, #ffffff 0%, #fafafa 100%);
+        border: 1px solid rgba(139, 69, 19, 0.1);
+        border-radius: 16px;
+        padding: 0;
+        margin-bottom: 20px;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(139, 69, 19, 0.05);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .history-item::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0;
+        height: 100%;
+        width: 4px;
+        background: linear-gradient(135deg, #8B4513, #D2B48C);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .history-item:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(139, 69, 19, 0.12);
+        border-color: rgba(139, 69, 19, 0.2);
+    }
+
+    .history-item:hover::before {
+        opacity: 1;
+    }
+
+    .history-item a {
+        text-decoration: none;
+        color: inherit;
+        display: block;
+        padding: 25px;
+    }
+
+    .history-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .history-main {
+        flex: 1;
+        text-align: left;
+    }
+
+    .history-title {
+        font-size: 1.3em;
+        font-weight: 600;
+        color: #2d3748;
+        margin-bottom: 8px;
+        line-height: 1.4;
+    }
+
+    .history-meta {
+        color: #718096;
+        font-size: 0.95em;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .hexagram-badge {
+        background: linear-gradient(135deg, #8B4513, #A0522D);
+        color: white;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.85em;
+        font-weight: 500;
+    }
+
+    .changing-badge {
+        background: linear-gradient(135deg, #e53e3e, #c53030);
+        color: white;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 0.8em;
+        font-weight: 500;
+    }
+
+    .history-time {
+        color: #a0aec0;
+        font-size: 0.9em;
+        text-align: right;
+        min-width: 120px;
+    }
+
+    .pagination {
+        text-align: center;
+        margin: 40px 0 30px;
+        padding: 20px 0;
+    }
+
+    .step-links {
+        display: inline-flex;
+        align-items: center;
+        gap: 15px;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .step-links a {
+        background: linear-gradient(135deg, #8B4513, #A0522D);
+        color: white;
+        padding: 10px 18px;
+        border-radius: 10px;
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(139, 69, 19, 0.2);
+    }
+
+    .step-links a:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 18px rgba(139, 69, 19, 0.3);
+    }
+
+    .current {
+        background: linear-gradient(135deg, #f7fafc, #edf2f7);
+        color: #4a5568;
+        padding: 10px 20px;
+        border-radius: 10px;
+        font-weight: 500;
+        border: 1px solid #e2e8f0;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        background: linear-gradient(135deg, #faf3e8 0%, #f5e6d3 100%);
+        border-radius: 20px;
+        margin: 40px 0;
+        border: 2px dashed rgba(139, 69, 19, 0.2);
+    }
+
+    .empty-state p {
+        font-size: 1.3em;
+        color: #5D4037;
+        margin-bottom: 25px;
+    }
+
+    .btn-group {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        margin: 30px 0;
+        flex-wrap: wrap;
+    }
+
+    .btn {
+        background: linear-gradient(135deg, #8B4513, #A0522D);
+        color: white;
+        padding: 14px 32px;
+        border-radius: 50px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+        box-shadow: 0 6px 20px rgba(139, 69, 19, 0.3);
+        display: inline-block;
+        text-align: center;
+    }
+
+    .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(139, 69, 19, 0.4);
+    }
+
+    @media (max-width: 768px) {
+        .history-container {
+            padding: 15px;
+        }
+
+        .page-title {
+            font-size: 1.8em;
+            margin-bottom: 25px;
+        }
+
+        .history-content {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 15px;
+        }
+
+        .history-time {
+            text-align: left;
+            align-self: flex-end;
+        }
+
+        .history-item a {
+            padding: 20px;
+        }
+
+        .step-links {
+            gap: 10px;
+        }
+
+        .step-links a, .current {
+            padding: 8px 14px;
+            font-size: 0.9em;
+        }
+
+        .btn-group {
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .btn {
+            width: 100%;
+            max-width: 280px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .history-meta {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 8px;
+        }
+
+        .history-title {
+            font-size: 1.1em;
+        }
+    }
+</style>
+
+<div class="history-container">
+    <h1 class="page-title">📜 占卜历史记录</h1>
+
+    <div class="btn-group">
         <a href="/index/" class="btn">返回首页</a>
+        {% if page_obj %}
+        <a href="/ai-insights/" class="btn" style="background: linear-gradient(135deg, #4a5568, #718096);">AI洞察分析</a>
+        {% endif %}
     </div>
-    
+
     {% if page_obj %}
-        <p style="text-align: center; color: #666; margin-bottom: 20px;">
-            共 {{ page_obj.paginator.count }} 条记录
-        </p>
-        
+        <div class="history-stats">
+            <strong>共 {{ page_obj.paginator.count }} 条记录</strong>
+        </div>
+
         <ul class="history-list">
             {% for record in page_obj %}
             <li class="history-item">
                 <a href="/detail/{{ record.id }}/">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <div style="text-align: left;">
-                            <strong style="font-size: 1.1em;">{{ record.thing }}</strong>
-                            <div style="color: #666; margin-top: 5px;">
-                                {{ record.hexagram_name }} ({{ record.hexagram_numbers }}) 
+                    <div class="history-content">
+                        <div class="history-main">
+                            <div class="history-title">{{ record.thing }}</div>
+                            <div class="history-meta">
+                                <span class="hexagram-badge">{{ record.hexagram_name }} ({{ record.hexagram_numbers }})</span>
                                 {% if record.changing_lines %}
-                                <span style="color: #e74c3c;">• 有变爻</span>
+                                <span class="changing-badge">• 有变爻</span>
                                 {% endif %}
                             </div>
                         </div>
-                        <div style="text-align: right; color: #999; font-size: 0.9em;">
+                        <div class="history-time">
                             {{ record.created_time|date:"Y-m-d H:i" }}
                         </div>
                     </div>
@@ -37,7 +323,7 @@
             </li>
             {% endfor %}
         </ul>
-        
+
         <div class="pagination">
             <span class="step-links">
                 {% if page_obj.has_previous %}
@@ -46,7 +332,7 @@
                 {% endif %}
 
                 <span class="current">
-                    第 {{ page_obj.number }} 页，共 {{ page_obj.paginator.num_pages }} 页
+                    第 {{ page_obj.number }} 页 / 共 {{ page_obj.paginator.num_pages }} 页
                 </span>
 
                 {% if page_obj.has_next %}
@@ -56,9 +342,9 @@
             </span>
         </div>
     {% else %}
-        <div style="text-align: center; padding: 40px;">
-            <p style="font-size: 1.2em; color: #666;">暂无占卜记录</p>
-            <a href="/index/" class="btn" style="margin-top: 20px;">开始第一次占卜</a>
+        <div class="empty-state">
+            <p>暂无占卜记录</p>
+            <a href="/index/" class="btn" style="max-width: 200px;">开始第一次占卜</a>
         </div>
     {% endif %}
 </div>

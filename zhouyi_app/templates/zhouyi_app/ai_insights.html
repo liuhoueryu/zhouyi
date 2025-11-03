@@ -3,22 +3,297 @@
 {% block title %}AI洞察 - 周易占卜系统{% endblock %}
 
 {% block content %}
+    <style>
+/* 主容器样式 */
+.content-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* 警告框样式优化 */
+.warning-box {
+    background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+    border: 2px solid #ffc107;
+    border-radius: 16px;
+    padding: 25px;
+    margin: 30px 0;
+    box-shadow: 0 8px 32px rgba(255, 193, 7, 0.15);
+    backdrop-filter: blur(10px);
+    position: relative;
+    overflow: hidden;
+}
+
+.warning-box::before {
+    content: "⚠️";
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    font-size: 24px;
+    opacity: 0.3;
+}
+
+.warning-box h4 {
+    color: #856404;
+    margin-bottom: 10px;
+    font-weight: 600;
+    font-size: 1.2em;
+}
+
+.warning-box p {
+    color: #856404;
+    margin: 0;
+    line-height: 1.6;
+}
+
+/* 信息框样式优化 */
+.info-box {
+    background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%);
+    border: 2px solid #0dcaf0;
+    border-radius: 16px;
+    padding: 30px;
+    margin: 30px 0;
+    box-shadow: 0 8px 32px rgba(13, 202, 240, 0.15);
+    backdrop-filter: blur(10px);
+}
+
+.info-box h3 {
+    color: #0c5460;
+    margin-bottom: 20px;
+    font-weight: 600;
+    font-size: 1.4em;
+    text-align: center;
+}
+
+.info-box p {
+    color: #0c5460;
+    font-size: 1.1em;
+    margin: 15px 0;
+    text-align: center;
+}
+
+.info-box strong {
+    font-size: 1.3em;
+    color: #055160;
+}
+
+/* 情感分布样式优化 */
+.sentiment-distribution {
+    background: white;
+    border-radius: 20px;
+    padding: 30px;
+    margin: 40px 0;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+    border: 1px solid #e9ecef;
+}
+
+.sentiment-badge {
+    padding: 12px 24px;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    min-width: 100px;
+    display: inline-block;
+}
+
+.sentiment-badge:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.sentiment-positive {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+}
+
+.sentiment-negative {
+    background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%);
+    color: white;
+}
+
+.sentiment-neutral {
+    background: linear-gradient(135deg, #6c757d 0%, #adb5bd 100%);
+    color: white;
+}
+
+/* 最近分析记录样式优化 */
+.recent-analysis {
+    background: white;
+    border-radius: 20px;
+    padding: 30px;
+    margin: 40px 0;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+    border: 1px solid #e9ecef;
+}
+
+.similar-case {
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 20px;
+    margin: 15px 0;
+    border-left: 4px solid #6f42c1;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.similar-case::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(111, 66, 193, 0.05) 0%, rgba(111, 66, 193, 0.02) 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none; /* 👈 防止遮挡点击 */
+}
+
+.similar-case:hover {
+    transform: translateX(5px);
+    box-shadow: 0 5px 20px rgba(111, 66, 193, 0.1);
+}
+
+.similar-case:hover::before {
+    opacity: 1;
+}
+
+.similar-case a {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}
+
+.similar-case strong {
+    color: #2d3748;
+    font-size: 1.1em;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.similar-case small {
+    color: #718096;
+    font-size: 0.9em;
+}
+
+/* 按钮样式优化 */
+.btn-container {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin: 40px 0;
+}
+
+.btn {
+    background: linear-gradient(135deg, #6f42c1 0%, #8b5cf6 100%);
+    color: white;
+    padding: 14px 32px;
+    border-radius: 50px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 1em;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(111, 66, 193, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+.btn::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s ease;
+}
+
+.btn:hover::before {
+    left: 100%;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(111, 66, 193, 0.4);
+}
+
+.btn-secondary {
+    background: linear-gradient(135deg, #6c757d 0%, #adb5bd 100%);
+    box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
+}
+
+.btn-secondary:hover {
+    box-shadow: 0 8px 25px rgba(108, 117, 125, 0.4);
+}
+
+/* 底部提示样式优化 */
+.footer-tip {
+    background: linear-gradient(135deg, #f1f3f4 0%, #e8eaed 100%);
+    border-radius: 16px;
+    padding: 25px;
+    margin-top: 50px;
+    text-align: center;
+    border: 1px solid #e1e5e9;
+}
+
+.footer-tip p {
+    color: #4a5568;
+    margin: 0;
+    font-size: 1em;
+    line-height: 1.6;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .content-container {
+        padding: 15px;
+    }
+
+    .warning-box,
+    .info-box,
+    .sentiment-distribution,
+    .recent-analysis {
+        padding: 20px;
+        margin: 20px 0;
+    }
+
+    .btn {
+        padding: 12px 24px;
+        font-size: 0.9em;
+    }
+
+    .sentiment-badge {
+        padding: 10px 20px;
+        font-size: 12px;
+        min-width: 80px;
+    }
+}
+</style>
 <div style="text-align: center;">
     <h2>🤖 AI深度洞察</h2>
-    
+
     {% if not ai_enabled %}
     <div class="warning-box">
         <h4>⚠️ AI功能未完全启用</h4>
         <p>部分深度学习模型加载失败，AI功能可能受限。请检查模型依赖安装。</p>
     </div>
     {% endif %}
-    
+
     <div class="info-box">
         <h3>数据概览</h3>
         <p>总占卜记录: <strong>{{ total_records }}</strong> 条</p>
         <p>AI分析记录: <strong>{{ recent_ai_analyzed|length }}</strong> 条</p>
     </div>
-    
+
     <!-- 情感分布 -->
     {% if sentiment_data %}
     <div style="margin: 30px 0;">
@@ -35,7 +310,7 @@
         </div>
     </div>
     {% endif %}
-    
+
     <!-- 最近AI分析记录 -->
     {% if recent_ai_analyzed %}
     <div style="margin: 30px 0;">
@@ -55,12 +330,12 @@
         </div>
     </div>
     {% endif %}
-    
+
     <div style="margin: 30px 0;">
         <a href="/index/" class="btn">返回首页</a>
         <a href="/history/" class="btn btn-secondary">查看全部历史</a>
     </div>
-    
+
     <div style="margin-top: 40px; color: #666; font-size: 14px;">
         <p>💡 AI洞察基于深度学习算法分析历史占卜数据，提供数据驱动的智慧建议</p>
     </div>

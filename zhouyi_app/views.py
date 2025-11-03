@@ -340,6 +340,7 @@ def fortune_detail(request, record_id):
 
     context = {
         'record': record,
+
         'hexagram_lines': hexagram_lines,
         'changing_lines': changing_lines,
         'has_ai_analysis': bool(record.ai_interpretation),

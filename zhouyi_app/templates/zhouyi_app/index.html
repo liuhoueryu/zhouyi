@@ -3,36 +3,372 @@
 {% block title %}首页 - 周易占卜系统{% endblock %}
 
 {% block content %}
-<div style="text-align: center;">
-    <h2>开始占卜</h2>
-    <p class="info-box">请静心凝神，专注于您要占卜的事项，然后填写下方表单。</p>
+<style>
+    .divination-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+    }
 
-    <!-- 修改这里：使用带动画的占卜页面 -->
-    <form method="post" action="/calculate-animation/">
+    .page-title {
+        text-align: center;
+        color: #5D4037;
+        font-size: 2.5em;
+        margin-bottom: 20px;
+        font-weight: 600;
+        position: relative;
+        padding-bottom: 15px;
+    }
+
+    .page-title::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100px;
+        height: 3px;
+        background: linear-gradient(90deg, transparent, #8B4513, transparent);
+        border-radius: 3px;
+    }
+
+    .info-box {
+        background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%);
+        border: 2px solid #0dcaf0;
+        border-radius: 16px;
+        padding: 25px;
+        margin: 30px 0;
+        text-align: center;
+        color: #0c5460;
+        font-size: 1.1em;
+        line-height: 1.6;
+        box-shadow: 0 8px 25px rgba(13, 202, 240, 0.15);
+    }
+
+    .divination-form {
+        background: linear-gradient(145deg, #ffffff 0%, #f8f9fa 100%);
+        border-radius: 20px;
+        padding: 40px 30px;
+        margin: 30px 0;
+        box-shadow: 0 10px 40px rgba(139, 69, 19, 0.1);
+        border: 1px solid rgba(139, 69, 19, 0.1);
+        position: relative;
+    }
+
+    .divination-form::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #8B4513, #D2B48C, #8B4513);
+        border-radius: 20px 20px 0 0;
+    }
+
+    .form-group {
+        margin-bottom: 30px;
+        text-align: left;
+    }
+
+    .form-label {
+        display: block;
+        margin-bottom: 15px;
+        font-size: 1.2em;
+        font-weight: 600;
+        color: #5D4037;
+        text-align: center;
+    }
+
+    .form-textarea {
+        width: 100%;
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        font-size: 1.1em;
+        font-family: inherit;
+        line-height: 1.5;
+        transition: all 0.3s ease;
+        resize: vertical;
+        min-height: 120px;
+        display: block;
+        background: #ffffff;
+    }
+
+    .form-textarea:focus {
+        outline: none;
+        border-color: #8B4513;
+        box-shadow: 0 0 0 3px rgba(139, 69, 19, 0.1);
+        transform: translateY(-2px);
+    }
+
+    .form-textarea::placeholder {
+        color: #a0aec0;
+        font-style: italic;
+    }
+
+    .error-message {
+        background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+        border: 2px solid #dc3545;
+        border-radius: 12px;
+        padding: 15px 20px;
+        margin: 20px 0;
+        color: #721c24;
+        text-align: center;
+        font-weight: 500;
+    }
+
+    .divination-btn {
+        background: linear-gradient(145deg, #8B4513, #A0522D);
+        color: white;
+        padding: 18px 50px;
+        border: none;
+        border-radius: 50px;
+        font-size: 1.3em;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 8px 25px rgba(139, 69, 19, 0.3);
+        position: relative;
+        overflow: hidden;
+        display: inline-block;
+        margin: 20px 0;
+    }
+
+    .divination-btn::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: left 0.5s ease;
+    }
+
+    .divination-btn:hover {
+        background: linear-gradient(145deg, #A0522D, #8B4513);
+        transform: translateY(-3px);
+        box-shadow: 0 12px 30px rgba(139, 69, 19, 0.4);
+    }
+
+    .divination-btn:hover::before {
+        left: 100%;
+    }
+
+    .divination-btn:active {
+        transform: translateY(-1px);
+        box-shadow: 0 6px 20px rgba(139, 69, 19, 0.3);
+    }
+
+    .notice-section {
+        margin: 50px 0 30px;
+        text-align: center;
+    }
+
+    .notice-title {
+        color: #5D4037;
+        font-size: 1.8em;
+        margin-bottom: 25px;
+        font-weight: 600;
+    }
+
+    .warning-box {
+        background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+        border: 2px solid #ffc107;
+        border-radius: 16px;
+        padding: 30px;
+        margin: 0 auto;
+        max-width: 600px;
+        box-shadow: 0 8px 25px rgba(255, 193, 7, 0.15);
+        text-align: left;
+    }
+
+    .warning-box p {
+        color: #856404;
+        font-weight: 600;
+        margin-bottom: 15px;
+        text-align: center;
+        font-size: 1.1em;
+    }
+
+    .warning-box ul {
+        color: #856404;
+        line-height: 1.8;
+        padding-left: 20px;
+        margin: 0;
+    }
+
+    .warning-box li {
+        margin-bottom: 8px;
+        position: relative;
+    }
+
+    .warning-box li::before {
+        content: "•";
+        color: #8B4513;
+        font-weight: bold;
+        position: absolute;
+        left: -15px;
+    }
+
+    .recent-section {
+        margin: 50px 0 30px;
+        text-align: center;
+    }
+
+    .recent-title {
+        color: #5D4037;
+        font-size: 1.8em;
+        margin-bottom: 25px;
+        font-weight: 600;
+    }
+
+    .history-list {
+        list-style: none;
+        padding: 0;
+        margin: 0 auto;
+        max-width: 600px;
+    }
+
+    .history-item {
+        background: linear-gradient(135deg, #ffffff 0%, #fafafa 100%);
+        border: 1px solid rgba(139, 69, 19, 0.1);
+        border-radius: 12px;
+        padding: 0;
+        margin-bottom: 15px;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(139, 69, 19, 0.05);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .history-item::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0;
+        height: 100%;
+        width: 4px;
+        background: linear-gradient(135deg, #8B4513, #D2B48C);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .history-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(139, 69, 19, 0.1);
+        border-color: rgba(139, 69, 19, 0.2);
+    }
+
+    .history-item:hover::before {
+        opacity: 1;
+    }
+
+    .history-item a {
+        text-decoration: none;
+        color: inherit;
+        display: block;
+        padding: 20px;
+    }
+
+    .history-item strong {
+        color: #2d3748;
+        font-size: 1.1em;
+        margin-bottom: 5px;
+        display: block;
+    }
+
+    .history-item small {
+        color: #718096;
+        font-size: 0.9em;
+    }
+
+    @media (max-width: 768px) {
+        .divination-container {
+            padding: 15px;
+        }
+
+        .page-title {
+            font-size: 2em;
+        }
+
+        .divination-form {
+            padding: 30px 20px;
+        }
+
+        .form-textarea {
+            padding: 15px;
+            font-size: 1em;
+        }
+
+        .divination-btn {
+            padding: 16px 40px;
+            font-size: 1.2em;
+            width: 100%;
+            max-width: 280px;
+        }
+
+        .warning-box {
+            padding: 25px 20px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .page-title {
+            font-size: 1.8em;
+        }
+
+        .info-box {
+            padding: 20px;
+            font-size: 1em;
+        }
+
+        .form-label {
+            font-size: 1.1em;
+        }
+
+        .notice-title, .recent-title {
+            font-size: 1.5em;
+        }
+    }
+</style>
+
+<div class="divination-container">
+    <h1 class="page-title">🎋 开始占卜</h1>
+
+    <div class="info-box">
+        <p>请静心凝神，专注于您要占卜的事项，然后填写下方表单。</p>
+    </div>
+
+    <form method="post" action="/calculate-animation/" class="divination-form">
         {% csrf_token %}
-        <div style="margin: 30px 0;">
-            <label for="thing" style="display: block; margin-bottom: 10px; font-size: 18px; font-weight: bold;">
+        <div class="form-group">
+            <label for="thing" class="form-label">
                 请输入您要占卜的事情：
             </label>
-            <textarea id="thing" name="thing" rows="4" style="width: 100%; max-width: 500px; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 16px; font-family: inherit;"
+            <textarea id="thing" name="thing" class="form-textarea"
                       placeholder="例如：事业发展、感情婚姻、学业考试、健康疾病等..." required></textarea>
         </div>
 
         {% if error %}
-        <div class="error">{{ error }}</div>
+        <div class="error-message">{{ error }}</div>
         {% endif %}
 
-        <button type="submit" class="btn" style="font-size: 18px; padding: 15px 40px;">
-            🎋 开始占卜 🎋
-        </button>
+        <div style="text-align: center;">
+            <button type="submit" class="divination-btn">
+                🎋 开始占卜 🎋
+            </button>
+        </div>
     </form>
 
-    <!-- 保留原有内容 -->
-    <div style="margin-top: 40px;">
-        <h3>占卜须知</h3>
+    <div class="notice-section">
+        <h3 class="notice-title">占卜须知</h3>
         <div class="warning-box">
             <p><strong>注意事项：</strong></p>
-            <ul style="text-align: left; display: inline-block;">
+            <ul>
                 <li>一事一占，不诚不占</li>
                 <li>无疑不占，不义不占</li>
                 <li>占卜前请静心默想所求之事</li>
@@ -42,13 +378,13 @@
     </div>
 
     {% if recent_records %}
-    <div style="margin-top: 40px;">
-        <h3>最近占卜记录</h3>
+    <div class="recent-section">
+        <h3 class="recent-title">最近占卜记录</h3>
         <ul class="history-list">
             {% for record in recent_records %}
             <li class="history-item">
                 <a href="/detail/{{  record.id }}">
-                    <strong>{{ record.thing }}</strong><br>
+                    <strong>{{ record.thing }}</strong>
                     <small>卦象：{{ record.hexagram_name }} | 时间：{{ record.created_time|date:"m-d H:i" }}</small>
                 </a>
             </li>

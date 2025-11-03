@@ -308,6 +308,7 @@ class FortuneAIAnalyzer:
                 hexagram_counts[name] = hexagram_counts.get(name, 0) + 1
 
             total = len(historical_data)
+            print(f"hexagram_name: {hexagram_name}, total: {total}")
             current_hexagram_count = hexagram_counts.get(hexagram_name, 0)
             probability = current_hexagram_count / total if total > 0 else 0
 
